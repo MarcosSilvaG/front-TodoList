@@ -7,16 +7,28 @@ import {
 	Typography,
 } from "@mui/material";
 import {useState,useEffect} from "react"
+import { useNavigate } from "react-router-dom";
 
 export default function TaskForm() {
+    
     const [task, setTask] = useState({
         title:"",
         description:"",
     })
-    const handleSubmit =  (event) => {
+
+    const navigate = useNavigate()
+    
+    const handleSubmit =  async (event) => {
         event.preventDefault();
-            
+        const response = await fetch("http://localhost:4000/tasks", {
+                method:"POST",
+                body: JSON.stringify(task),
+                headers: {"Content-Type":"application/json"}
+        })
+        const data = await response.json()
+        navigate("/")
     }   
+    
     const handleChange = (event) => {
         setTask({...task, [event.target.name]: event.target.value}); 
     }
