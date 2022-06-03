@@ -2,6 +2,7 @@ import {
 	Button,
 	Card,
 	CardContent,
+	CircularProgress,
 	Grid,
 	TextField,
 	Typography,
@@ -15,11 +16,14 @@ export default function TaskForm() {
         title:"",
         description:"",
     })
-
+    const  [loading, setLoading] = useState(false);
     const navigate = useNavigate()
     
     const handleSubmit =  async (event) => {
         event.preventDefault();
+        
+        setLoading(true)
+
         const response = await fetch("http://localhost:4000/tasks", {
                 method:"POST",
                 body: JSON.stringify(task),
@@ -27,6 +31,7 @@ export default function TaskForm() {
         })
         const data = await response.json()
         navigate("/")
+        setLoading(false)
     }   
     
     const handleChange = (event) => {
@@ -83,8 +88,12 @@ export default function TaskForm() {
 								variant="contained"
 								color="primary"
 								type="submit"
+                                disabled={!task.title || !task.description}
 							>
-								Save
+								{loading ? <CircularProgress 
+                                    color="inherit"
+                                    size={24}
+                                /> :  "Create"}
 							</Button>
 						</form>
 					</CardContent>
