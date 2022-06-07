@@ -7,12 +7,12 @@ import { Container } from "@mui/material";
 export default function App() {
 	return (
 		<BrowserRouter>
-			<Navbar/>
+			<Navbar />
 			<Container>
 				<Routes>
 					<Route path="/" element={<TaskList />} />
 					<Route path="/task/new" element={<TaskForm />} />
-					{/* the path to edit is missing  */}
+					<Route path="/tasks/:id/edit" element={<TaskForm />} />
 				</Routes>
 			</Container>
 		</BrowserRouter>

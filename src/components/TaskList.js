@@ -1,8 +1,10 @@
 import { Card, Typography, CardContent, Button } from "@mui/material";
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 
 export default function TaskList() {
 	const [tasks, setTasks] = useState([]);
+	const navigate = useNavigate();
 
 	const loadTask = async () => {
 		const response = await fetch("http://localhost:4000/tasks");
@@ -51,7 +53,9 @@ export default function TaskList() {
 							<Button
 								variant="contained"
 								color="inherit"
-								onClick={() => console.log("Editando")}
+								onClick={() =>
+									navigate(`/tasks/${task.id}/edit`)
+								}
 							>
 								Edit
 							</Button>
