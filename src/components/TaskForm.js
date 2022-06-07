@@ -7,38 +7,59 @@ import {
 	TextField,
 	Typography,
 } from "@mui/material";
-import {useState} from "react"
-import { useNavigate } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, useParams } from "react-router-dom";
 
 export default function TaskForm() {
-    
-    const [task, setTask] = useState({
-        title:"",
-        description:"",
-    })
-    const  [loading, setLoading] = useState(false);
-    const navigate = useNavigate()
-    
-    const handleSubmit =  async (event) => {
-        event.preventDefault();
-        
-        setLoading(true)
+	const [task, setTask] = useState({
+		title: "",
+		description: "",
+	});
+	const [loading, setLoading] = useState(false);
+	const [editing, setEditing] = useState(false);
 
-        const response = await fetch("http://localhost:4000/tasks", {
-                method:"POST",
-                body: JSON.stringify(task),
-                headers: {"Content-Type":"application/json"}
-        })
-        const data = await response.json()
-        navigate("/")
-        setLoading(false)
-    }   
-    
-    const handleChange = (event) => {
-        setTask({...task, [event.target.name]: event.target.value}); 
-    }
+	const navigate = useNavigate();
+	const params = useParams();
 
-    return (
+	const handleSubmit = async event => {
+		event.preventDefault();
+		setLoading(true);
+
+		if (editing) {
+			await fetch(`http://localhost:4000/tasks/${params.id}`, {
+				method: "PUT",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(task),
+			});
+		} else {
+			await fetch("http://localhost:4000/tasks", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify(task),
+			});
+		}
+		navigate("/");
+		setLoading(false);
+	};
+
+	const handleChange = event => {
+		setTask({ ...task, [event.target.name]: event.target.value });
+	};
+
+	const loadTask = async id => {
+		const response = await fetch(`http://localhost:4000/tasks/${id}`);
+		const data = await response.json();
+		setTask({ title: data.title, description: data.description });
+		setEditing(true);
+	};
+
+	useEffect(() => {
+		if (params.id) {
+			loadTask(params.id);
+		}
+	}, [params.id]);
+
+	return (
 		<Grid
 			container
 			direction="column"
@@ -54,7 +75,7 @@ export default function TaskForm() {
 					}}
 				>
 					<Typography variant="5" textAlign="center" color="white">
-						Create task
+						{editing ? "Edit Task" : "Create Task"}
 					</Typography>
 					<CardContent>
 						<form onSubmit={handleSubmit}>
@@ -65,9 +86,10 @@ export default function TaskForm() {
 									display: "block",
 									margin: ".5rem 0",
 								}}
-                                name="title"
-                                onChange={handleChange}
-                                inputProps={{ style: { color: "white" } }}
+								name="title"
+								value={task.title}
+								onChange={handleChange}
+								inputProps={{ style: { color: "white" } }}
 								InputLabelProps={{ style: { color: "white" } }}
 							/>
 							<TextField
@@ -79,21 +101,26 @@ export default function TaskForm() {
 									display: "block",
 									margin: ".5rem 0",
 								}}
-                                name="description"
-                                onChange={handleChange}
-                                inputProps={{ style: { color: "white" } }}
+								name="description"
+								value={task.description}
+								onChange={handleChange}
+								inputProps={{ style: { color: "white" } }}
 								InputLabelProps={{ style: { color: "white" } }}
 							/>
 							<Button
 								variant="contained"
 								color="primary"
 								type="submit"
-                                disabled={!task.title || !task.description}
+								disabled={!task.title || !task.description}
 							>
-								{loading ? <CircularProgress 
-                                    color="inherit"
-                                    size={24}
-                                /> :  "Create"}
+								{loading ? (
+									<CircularProgress
+										color="inherit"
+										size={24}
+									/>
+								) : (
+									"Save"
+								)}
 							</Button>
 						</form>
 					</CardContent>
